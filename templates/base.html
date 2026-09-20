@@ -12,6 +12,7 @@
 <body>
   <header class="topbar">
     <a class="brand" href="{{ url_for('index') }}"><span>IPC</span> Desk</a>
+    <span class="owner-name">Bhaskar Mandiya</span>
     <nav aria-label="Main navigation">
       <a href="{{ url_for('index') }}">Browse sections</a>
       <a class="nav-action" href="{{ url_for('add_article') }}">+ Add article</a>
@@ -25,6 +26,6 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <footer>Reference catalog for the Indian Penal Code. Verify the current law, amendments, and case law before relying on any entry. Created by Bhaskar Mandiya.</footer>
+  <footer>Reference catalog for the Indian Penal Code. Verify the current law, amendments, and case law before relying on any entry.</footer>
 </body>
 </html>
