@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Section {{ article.section_code }} | IPC Desk{% endblock %}
+{% block content %}
+<div class="detail-wrap">
+  <a class="back-link" href="{{ url_for('index') }}">← Back to directory</a>
+  <article class="detail-card">
+    <p class="eyebrow">SECTION {{ article.section_code }} · {{ article.chapter }}</p>
+    <h1>{{ article.title }}</h1>
+    <div class="rule"></div>
+    <h2>Statutory text</h2><blockquote>{{ article.text }}</blockquote>
+    <h2>At a glance</h2><p class="detail-copy">{{ article.details }}</p>
+    <p class="disclaimer">This catalog is for research and education. It is not legal advice and may not reflect later amendments or judicial interpretation.</p>
+  </article>
+</div>
+{% endblock %}
