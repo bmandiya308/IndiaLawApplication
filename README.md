@@ -19,6 +19,8 @@ Open `http://<your-computer-ip>:5000` in a browser from another device on the sa
 
 The free service sleeps when idle. The included SQLite database is suitable for a demo, but Render's local filesystem is not durable, so use managed PostgreSQL before treating added articles as permanent production data.
 
+Set the Render environment variable `ADMIN_PASSWORD` to the editor password. Only username `bmandiya308` with that password can open the add-article page or create articles through `POST /api/articles`; browsing and search remain public.
+
 ## API
 
 - `GET /api/articles` lists sections.

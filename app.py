@@ -1,8 +1,9 @@
 import os
 import sqlite3
 from contextlib import closing
+from functools import wraps
 
-from flask import Flask, abort, flash, g, jsonify, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, g, jsonify, redirect, render_template, request, session, url_for
 
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -11,6 +12,8 @@ DATABASE = os.path.join(BASE_DIR, "instance", "ipc.db")
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "ipc-catalog-development-key")
 app.config["DATABASE"] = DATABASE
+app.config["ADMIN_USERNAME"] = "bmandiya308"
+app.config["ADMIN_PASSWORD"] = os.environ.get("ADMIN_PASSWORD", "")
 
 
 SEED_ARTICLES = [
@@ -129,6 +132,18 @@ def article_from_form(form):
     return values, missing
 
 
+def login_required(view):
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if session.get("username") != app.config["ADMIN_USERNAME"]:
+            if request.path.startswith("/api/"):
+                return jsonify({"message": "Authentication required"}), 401
+            return redirect(url_for("login", next=request.path))
+        return view(*args, **kwargs)
+
+    return wrapped_view
+
+
 @app.context_processor
 def inject_catalog_stats():
     total = get_db().execute("SELECT COUNT(*) FROM articles").fetchone()[0]
@@ -163,7 +178,27 @@ def article_detail(article_id):
     return render_template("article.html", article=article)
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        if username == app.config["ADMIN_USERNAME"] and app.config["ADMIN_PASSWORD"] and password == app.config["ADMIN_PASSWORD"]:
+            session.clear()
+            session["username"] = username
+            return redirect(request.args.get("next") or url_for("add_article"))
+        flash("Only the authorized editor can add articles. Check the username and password.", "error")
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
+
 @app.route("/add", methods=["GET", "POST"])
+@login_required
 def add_article():
     if request.method == "POST":
         values, missing = article_from_form(request.form)
@@ -198,6 +233,9 @@ def articles_api():
         else:
             rows = database.execute("SELECT * FROM articles ORDER BY CAST(section_code AS INTEGER), section_code").fetchall()
         return jsonify([dict(row) for row in rows])
+
+    if session.get("username") != app.config["ADMIN_USERNAME"]:
+        return jsonify({"message": "Authentication required"}), 401
 
     payload = request.get_json(silent=True) or {}
     values, missing = article_from_form(payload)

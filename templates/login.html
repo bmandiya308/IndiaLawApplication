@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Editor login | IPC Desk{% endblock %}
+{% block content %}
+<div class="form-wrap login-wrap"><a class="back-link" href="{{ url_for('index') }}">← Back to directory</a><div class="form-heading"><p class="eyebrow">AUTHORIZED EDITOR</p><h1>Editor login</h1><p>Only the authorized account can add IPC articles.</p></div>
+<form class="article-form" method="post"><label>Username<input name="username" value="bmandiya308" autocomplete="username" required></label><label>Password<input name="password" type="password" autocomplete="current-password" required></label><div class="form-actions"><a class="button secondary" href="{{ url_for('index') }}">Cancel</a><button class="button" type="submit">Sign in</button></div></form></div>
+{% endblock %}
