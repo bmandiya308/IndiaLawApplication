@@ -11,6 +11,14 @@ python app.py
 
 Open `http://<your-computer-ip>:5000` in a browser from another device on the same network. The SQLite database is created at `instance/ipc.db` on first run.
 
+## Free hosting on Render
+
+1. Create a free account at Render and connect the GitHub repository.
+2. Choose **New > Blueprint** and select this repository.
+3. Render will read `render.yaml` and create the free `indianlawdetails` web service.
+
+The free service sleeps when idle. The included SQLite database is suitable for a demo, but Render's local filesystem is not durable, so use managed PostgreSQL before treating added articles as permanent production data.
+
 ## API
 
 - `GET /api/articles` lists sections.
