@@ -15,6 +15,6 @@ Open `http://<your-computer-ip>:5000` in a browser from another device on the sa
 
 - `GET /api/articles` lists sections.
 - `GET /api/articles?q=theft` searches section code, title, or chapter.
-- `POST /api/articles` accepts JSON with `section_code`, `title`, `chapter`, `text`, and `details`.
+- `POST /api/articles` accepts JSON with `section_code`, `title`, `chapter`, `text`, `punishment`, and `details`.
 
 The included entries are a starter catalog of commonly referenced IPC sections. Add the remaining sections through the editor or API as the authoritative source material is reviewed. This application is a research aid, not legal advice; verify current legislation, amendments, and case law.
