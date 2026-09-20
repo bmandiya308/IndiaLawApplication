@@ -11,6 +11,7 @@ class IpcCatalogTestCase(unittest.TestCase):
         self.database.close()
         app.config["TESTING"] = True
         app.config["DATABASE"] = self.database.name
+        app.config["ADMIN_PASSWORD"] = "test-password"
         with app.app_context():
             from app import init_db
             init_db()
@@ -25,6 +26,12 @@ class IpcCatalogTestCase(unittest.TestCase):
         self.assertIn(b"Punishment for theft", response.data)
 
     def test_article_api_rejects_missing_fields_and_creates_entry(self):
+        response = self.client.post("/api/articles", json={"section_code": "600"})
+        self.assertEqual(response.status_code, 401)
+        response = self.client.post("/login", data={
+            "username": "bmandiya308", "password": "test-password",
+        })
+        self.assertEqual(response.status_code, 302)
         response = self.client.post("/api/articles", json={"section_code": "600"})
         self.assertEqual(response.status_code, 400)
         response = self.client.post("/api/articles", json={
