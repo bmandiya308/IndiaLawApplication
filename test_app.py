@@ -29,10 +29,11 @@ class IpcCatalogTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         response = self.client.post("/api/articles", json={
             "section_code": "600", "title": "Test section", "chapter": "Test chapter",
-            "text": "Test text", "details": "Test details",
+            "text": "Test text", "details": "Test details", "punishment": "Test punishment",
         })
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.get_json()["section_code"], "600")
+        self.assertEqual(response.get_json()["punishment"], "Test punishment")
 
 
 if __name__ == "__main__":

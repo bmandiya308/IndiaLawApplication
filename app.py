@@ -40,6 +40,34 @@ SEED_ARTICLES = [
     ("509", "Word, gesture or act intended to insult modesty of a woman", "Of Criminal Intimidation, Insult and Annoyance", "Whoever, intending to insult the modesty of any woman, utters a word, makes a sound or gesture, exhibits an object, or intrudes upon her privacy is punishable under this section.", "The intention and the nature of the word, gesture, act, or intrusion are material."),
 ]
 
+PUNISHMENTS = {
+    "1": "Not a punishment provision; this section states the name and extent of the Code.",
+    "34": "No separate punishment is prescribed here. Each participant may be liable for the criminal act as if they had done it alone.",
+    "107": "Abetment is punished under the provision applicable to the abetted offence, including section 109 where applicable.",
+    "120B": "Punishment depends on the offence that is the object of the conspiracy; the section provides different treatment for serious offences and other conspiracies.",
+    "141": "Not a punishment provision; unlawful assembly is defined here. The related punishment for membership is generally provided by section 143.",
+    "146": "The related punishment for rioting is generally imprisonment up to two years, or fine, or both under section 147.",
+    "153A": "Imprisonment up to three years, or fine, or both; offences in a place of worship may attract imprisonment up to five years and fine.",
+    "186": "Imprisonment up to three months, or fine up to 500 rupees, or both.",
+    "302": "Death or imprisonment for life, and liability to fine.",
+    "304A": "Imprisonment up to two years, or fine, or both.",
+    "307": "Imprisonment up to ten years and fine; if hurt is caused, imprisonment for life or the stated imprisonment and fine may apply.",
+    "323": "Imprisonment up to one year, or fine up to 1,000 rupees, or both.",
+    "354": "Imprisonment of either description for at least one year and up to five years, and fine.",
+    "375": "Not a punishment provision; this section defines rape. Punishment is provided by section 376 and related provisions.",
+    "376": "Generally rigorous imprisonment of at least ten years and up to imprisonment for life, and fine, subject to the applicable circumstances and amendments.",
+    "379": "Imprisonment up to three years, or fine, or both.",
+    "392": "Rigorous imprisonment up to ten years and fine; robbery on a highway between sunset and sunrise may attract imprisonment up to fourteen years.",
+    "406": "Imprisonment up to three years, or fine, or both.",
+    "420": "Imprisonment up to seven years and fine.",
+    "498A": "Imprisonment up to three years and fine.",
+    "499": "Not a punishment provision; this section defines defamation. Punishment is provided by section 500.",
+    "500": "Simple imprisonment up to two years, or fine, or both.",
+    "506": "Imprisonment up to two years, or fine, or both; aggravated threats may attract imprisonment up to seven years, or fine, or both.",
+    "509": "Simple imprisonment up to three years and fine.",
+}
+DEFAULT_PUNISHMENT = "Verify the current statutory punishment, applicable exceptions, and amendments before relying on this entry."
+
 
 def get_db():
     if "db" not in g:
@@ -66,15 +94,25 @@ def init_db():
             chapter TEXT NOT NULL,
             text TEXT NOT NULL,
             details TEXT NOT NULL,
+            punishment TEXT NOT NULL DEFAULT '""',
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )"""
     )
+    columns = {row[1] for row in database.execute("PRAGMA table_info(articles)").fetchall()}
+    if "punishment" not in columns:
+        database.execute("ALTER TABLE articles ADD COLUMN punishment TEXT NOT NULL DEFAULT ''")
     count = database.execute("SELECT COUNT(*) FROM articles").fetchone()[0]
     if count == 0:
         database.executemany(
-            "INSERT INTO articles (section_code, title, chapter, text, details) VALUES (?, ?, ?, ?, ?)",
-            SEED_ARTICLES,
+            "INSERT INTO articles (section_code, title, chapter, text, details, punishment) VALUES (?, ?, ?, ?, ?, ?)",
+            [article + (PUNISHMENTS.get(article[0], DEFAULT_PUNISHMENT),) for article in SEED_ARTICLES],
         )
+    else:
+        for section_code, punishment in PUNISHMENTS.items():
+            database.execute(
+                "UPDATE articles SET punishment = ? WHERE section_code = ? AND (punishment = '' OR punishment IS NULL)",
+                (punishment, section_code),
+            )
     database.commit()
 
 
@@ -85,6 +123,7 @@ def article_from_form(form):
         "chapter": form.get("chapter", "").strip(),
         "text": form.get("text", "").strip(),
         "details": form.get("details", "").strip(),
+        "punishment": form.get("punishment", "").strip(),
     }
     missing = [field for field, value in values.items() if not value]
     return values, missing
@@ -134,7 +173,7 @@ def add_article():
         try:
             database = get_db()
             cursor = database.execute(
-                "INSERT INTO articles (section_code, title, chapter, text, details) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO articles (section_code, title, chapter, text, details, punishment) VALUES (?, ?, ?, ?, ?, ?)",
                 tuple(values.values()),
             )
             database.commit()
@@ -166,7 +205,7 @@ def articles_api():
         return jsonify({"message": "All fields are required", "missing": missing}), 400
     try:
         cursor = database.execute(
-            "INSERT INTO articles (section_code, title, chapter, text, details) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO articles (section_code, title, chapter, text, details, punishment) VALUES (?, ?, ?, ?, ?, ?)",
             tuple(values.values()),
         )
         database.commit()
