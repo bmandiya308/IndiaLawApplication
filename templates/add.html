@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Add IPC Article | IPC Desk{% endblock %}
+{% block content %}
+<div class="form-wrap"><a class="back-link" href="{{ url_for('index') }}">← Back to directory</a><div class="form-heading"><p class="eyebrow">CATALOG EDITOR</p><h1>Add an IPC section</h1><p>Keep the entry concise, source-based, and easy to verify.</p></div>
+<form class="article-form" method="post"><div class="form-grid"><label>IPC section<input name="section_code" value="{{ values.get('section_code', '') }}" placeholder="e.g. 304B" required></label><label>Chapter<input name="chapter" value="{{ values.get('chapter', '') }}" placeholder="e.g. Offences Against Property" required></label></div><label>Section title<input name="title" value="{{ values.get('title', '') }}" placeholder="Official section heading" required></label><label>Statutory text<textarea name="text" rows="6" placeholder="Enter the section text" required>{{ values.get('text', '') }}</textarea></label><label>Plain-language details<textarea name="details" rows="5" placeholder="Summarize the ingredients, scope, or related provisions" required>{{ values.get('details', '') }}</textarea></label><div class="form-actions"><a class="button secondary" href="{{ url_for('index') }}">Cancel</a><button class="button" type="submit">Save article</button></div></form></div>
+{% endblock %}

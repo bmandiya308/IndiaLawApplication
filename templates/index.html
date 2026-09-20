@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}IPC Desk | Browse Indian Penal Code{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">INDIA LAW REFERENCE</p>
+    <h1>Indian Penal Code,<br><em>made searchable.</em></h1>
+    <p class="intro">Find section text, plain-language notes, and chapter context in one focused catalog.</p>
+  </div>
+  <div class="stat-strip"><strong>{{ article_count }}</strong><span>sections indexed</span><strong>{{ chapter_count }}</strong><span>chapters represented</span></div>
+</section>
+<section class="catalog-layout">
+  <aside class="filters">
+    <form method="get" action="{{ url_for('index') }}">
+      <label for="q">Search the code</label>
+      <div class="search-box"><input id="q" name="q" value="{{ query }}" placeholder="e.g. 302, theft, defamation"><button aria-label="Search">→</button></div>
+      <label for="chapter">Chapter</label>
+      <select id="chapter" name="chapter" onchange="this.form.submit()">
+        <option value="">All chapters</option>
+        {% for item in chapters %}<option value="{{ item.chapter }}" {% if selected_chapter == item.chapter %}selected{% endif %}>{{ item.chapter }}</option>{% endfor %}
+      </select>
+      {% if query or selected_chapter %}<a class="clear-filter" href="{{ url_for('index') }}">Clear filters</a>{% endif %}
+    </form>
+    <div class="api-note"><span>API available</span><code>GET /api/articles</code><code>GET /api/articles?q=theft</code></div>
+  </aside>
+  <div class="results">
+    <div class="results-heading"><div><p class="eyebrow">SECTION DIRECTORY</p><h2>{% if query %}Results for “{{ query }}”{% else %}Browse all sections{% endif %}</h2></div><span>{{ articles|length }} found</span></div>
+    {% if articles %}
+      <div class="article-list">{% for article in articles %}<a class="article-row" href="{{ url_for('article_detail', article_id=article.id) }}"><div class="section-number">{{ article.section_code }}</div><div class="article-summary"><h3>{{ article.title }}</h3><p>{{ article.chapter }}</p><div class="excerpt">{{ article.text }}</div></div><div class="arrow">↗</div></a>{% endfor %}</div>
+    {% else %}<div class="empty"><h3>No matching sections</h3><p>Try a section number, title, or chapter name.</p></div>{% endif %}
+  </div>
+</section>
+{% endblock %}
